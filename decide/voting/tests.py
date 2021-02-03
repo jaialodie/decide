@@ -15,44 +15,6 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
 
-class VotingModelTC(BaseTestCase):
-    def setUp(self):
-        q=Question(desc="Description")
-        q.save()
-
-        opt1=QuestionOption(question=q, option="option1")
-        opt1.save()
-
-        opt2=QuestionOption(question=q, option="option2")
-        opt2.save()
-
-        self.v=Voting(name="Votacion",question=q)
-        self.v.save()
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-        self.v=None
-
-    def testExist(self):
-        v = Voting.objects.get(name="Votacion")
-        self.assertEquals(v.question.options.all()[0].option, "option1")
-
-    def testCreateVotingAPI(self):
-        self.login()
-        data = {
-            'name': 'Example',
-            'desc': 'Descripcion',
-            'question': 'I wanna',
-            'question_opt': ['car', 'house']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 201)
-
-        v = Voting.objects.get(name="Example")
-        self.assertEqual(v.desc, 'Descripcion')
-
 class VotingTestCase(BaseTestCase):
 
     def setUp(self):
