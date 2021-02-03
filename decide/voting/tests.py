@@ -15,43 +15,6 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption
 
-class VotingModelTC(BaseTestCase):
-    def setUp(self):
-        q=Question(desc="Description")
-        q.save()
-
-        opt1=QuestionOption(question=q, option="option1")
-        opt1.save()
-
-        opt2=QuestionOption(question=q, option="option2")
-        opt2.save()
-
-        self.v=Voting(name="Votacion",question=q)
-        self.v.save()
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-        self.v=None
-
-    def testExist(self):
-        v = Voting.objects.get(name="Votacion")
-        self.assertEquals(v.question.options.all()[0].option, "option1")
-
-    def testCreateVotingAPI(self):
-        self.login()
-        data = {
-            'name': 'Example',
-            'desc': 'Descripcion',
-            'question': 'I wanna',
-            'question_opt': ['car', 'house']
-        }
-
-        response = self.client.post('/voting/', data, format='json')
-        self.assertEqual(response.status_code, 201)
-
-        v = Voting.objects.get(name="Example")
-        self.assertEqual(v.desc, 'Descripcion')
 
 class VotingTestCase(BaseTestCase):
 
@@ -245,16 +208,3 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
-	
-	def test_Voting_toString(self):
-        v = self.create_voting()
-        self.assertEquals(str(v),"test voting")
-        self.assertEquals(str(v.question),"test question")
-        self.assertEquals(str(v.question.options.all()[0]),"option 1 (2)")
-
-    def test_update_voting_400(self):
-        v = self.create_voting()
-        data = {} #El campo action es requerido en la request
-        self.login()
-        response = self.client.put('/voting/{}/'.format(v.pk), data, format= 'json')
-        self.assertEquals(response.status_code, 400)
